@@ -1,4 +1,4 @@
-package com.fernando.ms.likes.app.twitter_clone_likes_service;
+package com.fernando.ms.likes.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

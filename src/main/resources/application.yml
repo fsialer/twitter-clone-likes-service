@@ -1,0 +1,10 @@
+server:
+  port: 8083
+spring:
+  application:
+    name: twitter-clone-likes-service
+  jackson:
+    default-property-inclusion: NON_NULL
+  data:
+    mongodb:
+      uri: ${DB_URL:mongodb://localhost:27017/tc_likes_db}
