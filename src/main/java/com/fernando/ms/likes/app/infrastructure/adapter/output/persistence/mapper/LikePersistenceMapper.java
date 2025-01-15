@@ -4,6 +4,7 @@ import com.fernando.ms.likes.app.domain.models.Like;
 import com.fernando.ms.likes.app.infrastructure.adapter.output.persistence.models.LikeDocument;
 import org.mapstruct.Mapper;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Mapper(componentModel = "spring")
 public interface LikePersistenceMapper {
@@ -11,5 +12,12 @@ public interface LikePersistenceMapper {
         return likes.map(this::toLike);
     }
 
+    default Mono<Like> toLike(Mono<LikeDocument> like){
+        return like.map(this::toLike);
+    }
+
     Like toLike(LikeDocument like);
+
+    LikeDocument toLikeDocument(Like like);
+
 }

@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -47,5 +48,24 @@ public class LikePersistenceAdapterTest {
                 .verifyComplete();
         Mockito.verify(likeReactiveMongoRepository, times(1)).findAllByTargetId(anyString());
         Mockito.verify(likePersistenceMapper, times(1)).toLikes(any(Flux.class));
+    }
+
+    @Test
+    @DisplayName("When Save Like Expect Like Saved Successfully")
+    void when_SaveLike_Expect_LikeSavedSuccessfully() {
+        LikeDocument likeDocument=TestUtilsLike.buildLikeDocumentMock();
+        Like like= TestUtilsLike.buildLikeMock();
+        when(likePersistenceMapper.toLikeDocument(any(Like.class))).thenReturn(likeDocument);
+        when(likeReactiveMongoRepository.save(any(LikeDocument.class))).thenReturn(Mono.just(likeDocument));
+        when(likePersistenceMapper.toLike(any(Mono.class))).thenReturn(Mono.just(like));
+
+        Mono<Like> result = likePersistenceAdapter.save(like);
+
+        StepVerifier.create(result)
+                .expectNext(like)
+                .verifyComplete();
+        Mockito.verify(likeReactiveMongoRepository, times(1)).save(any(LikeDocument.class));
+        Mockito.verify(likePersistenceMapper, times(1)).toLikeDocument(any(Like.class));
+        Mockito.verify(likePersistenceMapper, times(1)).toLike(any(Mono.class));
     }
 }

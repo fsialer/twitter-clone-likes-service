@@ -2,15 +2,17 @@ package com.fernando.ms.likes.app.infrastructure.adapter.input.rest;
 
 import com.fernando.ms.likes.app.application.ports.input.LikeInputPort;
 import com.fernando.ms.likes.app.infrastructure.adapter.input.rest.mapper.LikeRestMapper;
+import com.fernando.ms.likes.app.infrastructure.adapter.input.rest.models.request.CreateLikeRequest;
+import com.fernando.ms.likes.app.infrastructure.adapter.input.rest.models.response.LikeResponse;
 import com.fernando.ms.likes.app.infrastructure.adapter.input.rest.models.response.QuantityLikeResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,6 +26,15 @@ public class LikeRestAdapter {
         return  likeInputPort.quantityLike(targetId,targetType)
                 .flatMap(like->{
                     return Mono.just(ResponseEntity.ok().body(likeRestMapper.toQuantityLikeResponse(like)));
+                });
+    }
+
+    @PostMapping
+    public Mono<ResponseEntity<LikeResponse>> save(@Valid @RequestBody CreateLikeRequest rq){
+        return likeInputPort.save(likeRestMapper.toLike(rq))
+                .flatMap(like->{
+                    String location = "/likes/".concat(like.getId());
+                    return Mono.just(ResponseEntity.created(URI.create(location)).body(likeRestMapper.toLikeResponse(like)));
                 });
     }
 }

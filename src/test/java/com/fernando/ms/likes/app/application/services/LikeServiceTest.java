@@ -41,4 +41,19 @@ public class LikeServiceTest {
                 .verifyComplete();
         Mockito.verify(likePersistencePort, times(1)).findAllByTargetId(anyString());
     }
+
+    @Test
+    @DisplayName("When Like Information Is Correct Expect Like Saved Successfully")
+    void when_LikeInformationIsCorrect_Expect_LikeSavedSuccessfully() {
+        Like like=TestUtilsLike.buildLikeMock();
+        when(likePersistencePort.save(any(Like.class))).thenReturn(Mono.just(like));
+
+        Mono<Like> result = likeService.save(like);
+
+        StepVerifier.create(result)
+                .expectNext(like)
+                .verifyComplete();
+
+        Mockito.verify(likePersistencePort, times(1)).save(any(Like.class));
+    }
 }

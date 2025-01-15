@@ -3,6 +3,8 @@ package com.fernando.ms.likes.app.infrastructure.adapter.input.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fernando.ms.likes.app.application.ports.input.LikeInputPort;
 import com.fernando.ms.likes.app.infrastructure.adapter.input.rest.mapper.LikeRestMapper;
+import com.fernando.ms.likes.app.infrastructure.adapter.input.rest.models.request.CreateLikeRequest;
+import com.fernando.ms.likes.app.infrastructure.adapter.input.rest.models.response.LikeResponse;
 import com.fernando.ms.likes.app.infrastructure.adapter.input.rest.models.response.QuantityLikeResponse;
 import com.fernando.ms.likes.app.utils.TestUtilsLike;
 import org.junit.jupiter.api.DisplayName;
@@ -52,6 +54,29 @@ public class LikeRestAdapterTest {
 
 
 
+    }
+
+    @Test
+    @DisplayName("When Save Like Expect Like Saved Successfully")
+    void when_SaveLike_Expect_LikeSavedSuccessfully() {
+        CreateLikeRequest createLikeRequest = TestUtilsLike.buildCreateLikeRequestMock();
+        LikeResponse likeResponse = TestUtilsLike.buildLikeResponseMock();
+
+        when(likeInputPort.save(any())).thenReturn(Mono.just(TestUtilsLike.buildLikeMock()));
+        when(likeRestMapper.toLike(any(CreateLikeRequest.class))).thenReturn(TestUtilsLike.buildLikeMock());
+        when(likeRestMapper.toLikeResponse(any())).thenReturn(likeResponse);
+
+        webTestClient.post()
+                .uri("/likes")
+                .bodyValue(createLikeRequest)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody()
+                .jsonPath("$.id").isEqualTo(likeResponse.getId());
+
+        Mockito.verify(likeInputPort, times(1)).save(any());
+        Mockito.verify(likeRestMapper, times(1)).toLike(any(CreateLikeRequest.class));
+        Mockito.verify(likeRestMapper, times(1)).toLikeResponse(any());
     }
 
 }

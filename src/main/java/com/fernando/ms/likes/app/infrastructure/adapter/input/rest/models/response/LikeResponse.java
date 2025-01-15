@@ -1,4 +1,4 @@
-package com.fernando.ms.likes.app.domain.models;
+package com.fernando.ms.likes.app.infrastructure.adapter.input.rest.models.response;
 
 import lombok.*;
 
@@ -7,9 +7,8 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Like {
+public class LikeResponse {
     private String id;
     private String targetId;
     private String targetType;
-    private User user;
 }

@@ -2,6 +2,7 @@ package com.fernando.ms.likes.app.application.services;
 
 import com.fernando.ms.likes.app.application.ports.input.LikeInputPort;
 import com.fernando.ms.likes.app.application.ports.output.LikePersistencePort;
+import com.fernando.ms.likes.app.domain.models.Like;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -16,5 +17,10 @@ public class LikeService implements LikeInputPort {
         return likePersistencePort.findAllByTargetId(targetId)
                 .filter(like -> like.getTargetType().equals(targetType))
                 .count();
+    }
+
+    @Override
+    public Mono<Like> save(Like like) {
+        return likePersistencePort.save(like);
     }
 }

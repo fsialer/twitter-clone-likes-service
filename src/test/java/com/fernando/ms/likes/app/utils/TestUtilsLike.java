@@ -2,6 +2,8 @@ package com.fernando.ms.likes.app.utils;
 
 import com.fernando.ms.likes.app.domain.models.Like;
 import com.fernando.ms.likes.app.domain.models.User;
+import com.fernando.ms.likes.app.infrastructure.adapter.input.rest.models.request.CreateLikeRequest;
+import com.fernando.ms.likes.app.infrastructure.adapter.input.rest.models.response.LikeResponse;
 import com.fernando.ms.likes.app.infrastructure.adapter.input.rest.models.response.QuantityLikeResponse;
 import com.fernando.ms.likes.app.infrastructure.adapter.output.persistence.models.LikeDocument;
 import com.fernando.ms.likes.app.infrastructure.adapter.output.persistence.models.LikeUser;
@@ -43,6 +45,26 @@ public class TestUtilsLike {
                 .quantity(1L)
                 .build();
     }
+
+    public static CreateLikeRequest buildCreateLikeRequestMock(){
+        return CreateLikeRequest.builder()
+                .userId(1L)
+                .targetId("67831b0ec8dda45d9a6c3022")
+                .targetType("POST")
+                .build();
+    }
+
+    public static LikeResponse buildLikeResponseMock(){
+        return LikeResponse.builder()
+                .id("1")
+                .targetId("67831b0ec8dda45d9a6c3022")
+                .targetType("POST")
+                .build();
+    }
+
+
+
+
 
 
 
