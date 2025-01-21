@@ -2,6 +2,7 @@ package com.fernando.ms.likes.app.infrastructure.adapter.output.persistence;
 
 import com.fernando.ms.likes.app.application.ports.output.LikePersistencePort;
 import com.fernando.ms.likes.app.domain.models.Like;
+import com.fernando.ms.likes.app.domain.models.User;
 import com.fernando.ms.likes.app.infrastructure.adapter.output.persistence.mapper.LikePersistenceMapper;
 import com.fernando.ms.likes.app.infrastructure.adapter.output.persistence.models.LikeDocument;
 import com.fernando.ms.likes.app.infrastructure.adapter.output.persistence.models.LikeUser;
@@ -28,5 +29,10 @@ public class LikePersistenceAdapter implements LikePersistencePort {
         LikeUser likeUser=LikeUser.builder().userId(like.getUser().getId()).build();
         likeDocument.setLikeUser(likeUser);
         return likePersistenceMapper.toLike(likeReactiveMongoRepository.save(likeDocument));
+    }
+
+    @Override
+    public Mono<Boolean> existsByUserAndTargetTypeTargetId(User user, String targetType, String targetId) {
+        return likeReactiveMongoRepository.existsByLikeUserAndTargetTypeAndTargetId(likePersistenceMapper.toLikeUser(user),targetType,targetId);
     }
 }

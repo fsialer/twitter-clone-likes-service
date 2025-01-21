@@ -1,7 +1,9 @@
 package com.fernando.ms.likes.app.infrastructure.adapter.output.persistence.mapper;
 
 import com.fernando.ms.likes.app.domain.models.Like;
+import com.fernando.ms.likes.app.domain.models.User;
 import com.fernando.ms.likes.app.infrastructure.adapter.output.persistence.models.LikeDocument;
+import com.fernando.ms.likes.app.infrastructure.adapter.output.persistence.models.LikeUser;
 import org.mapstruct.Mapper;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -19,5 +21,11 @@ public interface LikePersistenceMapper {
     Like toLike(LikeDocument like);
 
     LikeDocument toLikeDocument(Like like);
+
+    default LikeUser toLikeUser(User user){
+        return LikeUser.builder()
+                .userId(user.getId())
+                .build();
+    }
 
 }

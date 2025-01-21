@@ -1,10 +1,13 @@
 package com.fernando.ms.likes.app.infrastructure.adapter.output.persistence;
 
 import com.fernando.ms.likes.app.domain.models.Like;
+import com.fernando.ms.likes.app.domain.models.User;
 import com.fernando.ms.likes.app.infrastructure.adapter.output.persistence.mapper.LikePersistenceMapper;
 import com.fernando.ms.likes.app.infrastructure.adapter.output.persistence.models.LikeDocument;
+import com.fernando.ms.likes.app.infrastructure.adapter.output.persistence.models.LikeUser;
 import com.fernando.ms.likes.app.infrastructure.adapter.output.persistence.repository.LikeReactiveMongoRepository;
 import com.fernando.ms.likes.app.utils.TestUtilsLike;
+import com.fernando.ms.likes.app.utils.TestUtilsUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -67,5 +70,21 @@ public class LikePersistenceAdapterTest {
         Mockito.verify(likeReactiveMongoRepository, times(1)).save(any(LikeDocument.class));
         Mockito.verify(likePersistenceMapper, times(1)).toLikeDocument(any(Like.class));
         Mockito.verify(likePersistenceMapper, times(1)).toLike(any(Mono.class));
+    }
+
+    @Test
+    @DisplayName("When User and TargetType and TargetId Do Not Exist Expect Like Not Exists")
+    void when_UserAndTargetTypeAndTargetIdDoNotExist_Expect_LikeNotExists() {
+        User user = TestUtilsUser.buildUserMock();
+        LikeUser likeUser = LikeUser.builder().userId(user.getId()).build();
+
+        when(likePersistenceMapper.toLikeUser(any(User.class))).thenReturn(likeUser);
+        when(likeReactiveMongoRepository.existsByLikeUserAndTargetTypeAndTargetId(any(LikeUser.class), anyString(), anyString())).thenReturn(Mono.just(false));
+
+        Mono<Boolean> result = likePersistenceAdapter.existsByUserAndTargetTypeTargetId(user, "POST", "67831b0ec8dda45d9a6c3022");
+
+        StepVerifier.create(result)
+                .expectNext(false)
+                .verifyComplete();
     }
 }
