@@ -9,4 +9,6 @@ public interface LikePersistencePort {
     Flux<Like> findAllByTargetId(String targetId);
     Mono<Like> save(Like like);
     Mono<Boolean> existsByUserAndTargetTypeTargetId(User user, String targetType, String targetId);
+    Mono<Like> findByLikeUserAndTargetTypeAndTargetId(User user, String targetType, String targetId);
+    Mono<Void> delete(String id);
 }

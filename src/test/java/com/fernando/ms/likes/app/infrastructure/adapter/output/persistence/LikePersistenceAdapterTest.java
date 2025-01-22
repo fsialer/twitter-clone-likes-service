@@ -87,4 +87,36 @@ public class LikePersistenceAdapterTest {
                 .expectNext(false)
                 .verifyComplete();
     }
+
+    @Test
+    @DisplayName("When User, TargetType, and TargetId Exist Expect Like Returned")
+    void When_UserTargetTypeAndTargetIdExist_Expect_LikeReturned() {
+        User user = TestUtilsUser.buildUserMock();
+        Like like = TestUtilsLike.buildLikeMock();
+        LikeDocument likeDocument = TestUtilsLike.buildLikeDocumentMock();
+        LikeUser likeUser = LikeUser.builder().userId(user.getId()).build();
+
+        when(likePersistenceMapper.toLikeUser(any(User.class))).thenReturn(likeUser);
+        when(likeReactiveMongoRepository.findByLikeUserAndTargetTypeAndTargetId(any(LikeUser.class), anyString(), anyString())).thenReturn(Mono.just(likeDocument));
+        when(likePersistenceMapper.toLike(any(LikeDocument.class))).thenReturn(like);
+
+        Mono<Like> result = likePersistenceAdapter.findByLikeUserAndTargetTypeAndTargetId(user, "POST", "67831b0ec8dda45d9a6c3022");
+
+        StepVerifier.create(result)
+                .expectNext(like)
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("When Delete Is Successful Expect Void")
+    void When_DeleteIsSuccessful_Expect_Void() {
+        when(likeReactiveMongoRepository.deleteById(anyString())).thenReturn(Mono.empty());
+
+        Mono<Void> result = likePersistenceAdapter.delete("67831b0ec8dda45d9a6c3022");
+
+        StepVerifier.create(result)
+                .verifyComplete();
+    }
+
+
 }

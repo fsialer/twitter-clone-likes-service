@@ -14,7 +14,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.List;
 
 import static com.fernando.ms.likes.app.infrastructure.adapter.input.rest.models.enums.ErrorType.FUNCTIONAL;
 import static com.fernando.ms.likes.app.infrastructure.adapter.input.rest.models.enums.ErrorType.SYSTEM;
@@ -97,6 +96,16 @@ public class GlobalControllerAdvice {
                 .build());
     }
 
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(LikeNotFoundException.class)
+    public Mono<ErrorResponse> handleLikeNotFoundException() {
+        return Mono.just(ErrorResponse.builder()
+                .code(LIKE_NOT_FOUND.getCode())
+                .type(FUNCTIONAL)
+                .message(LIKE_NOT_FOUND.getMessage())
+                .timestamp(LocalDate.now().toString())
+                .build());
+    }
 
 
 

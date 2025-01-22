@@ -6,4 +6,5 @@ import reactor.core.publisher.Mono;
 public interface LikeInputPort {
     Mono<Long> quantityLike(String targetId,String targetType);
     Mono<Like> save(Like like);
+    Mono<Void> unlike(Long userId, String targetType, String targetId);
 }

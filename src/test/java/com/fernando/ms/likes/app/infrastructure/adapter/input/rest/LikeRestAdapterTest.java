@@ -79,4 +79,17 @@ public class LikeRestAdapterTest {
         Mockito.verify(likeRestMapper, times(1)).toLikeResponse(any());
     }
 
+    @Test
+    @DisplayName("When Unlike Is Successful Expect No Content")
+    void when_UnlikeIsSuccessful_Expect_NoContent() {
+        when(likeInputPort.unlike(anyLong(), anyString(), anyString())).thenReturn(Mono.empty());
+
+        webTestClient.delete()
+                .uri("/likes/unlike/{userId}/user/{targetType}/target-type/{targetId}/target-id", 1L, "POST", "67831b0ec8dda45d9a6c3022")
+                .exchange()
+                .expectStatus().isNoContent();
+
+        Mockito.verify(likeInputPort, times(1)).unlike(anyLong(), anyString(), anyString());
+    }
+
 }

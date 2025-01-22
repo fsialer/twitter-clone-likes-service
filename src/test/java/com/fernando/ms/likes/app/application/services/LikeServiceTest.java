@@ -3,11 +3,14 @@ package com.fernando.ms.likes.app.application.services;
 import com.fernando.ms.likes.app.application.ports.output.ExternalUserOutputPort;
 import com.fernando.ms.likes.app.application.ports.output.LikePersistencePort;
 import com.fernando.ms.likes.app.application.services.strategy.like.ITargetTypeStrategy;
+import com.fernando.ms.likes.app.domain.exception.LikeNotFoundException;
 import com.fernando.ms.likes.app.domain.exception.TargetTypeNotFoundException;
 import com.fernando.ms.likes.app.domain.exception.UniqueLikeException;
 import com.fernando.ms.likes.app.domain.exception.UserNotFoundException;
 import com.fernando.ms.likes.app.domain.models.Like;
+import com.fernando.ms.likes.app.domain.models.User;
 import com.fernando.ms.likes.app.utils.TestUtilsLike;
+import com.fernando.ms.likes.app.utils.TestUtilsUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +26,7 @@ import reactor.test.StepVerifier;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -143,5 +147,35 @@ public class LikeServiceTest {
         Mockito.verify(likePersistencePort, times(1)).existsByUserAndTargetTypeTargetId(any(), anyString(), anyString());
         Mockito.verify(externalUserOutputPort, times(1)).verify(anyLong());
         Mockito.verify(likePersistencePort,never()).save(any(Like.class));
+    }
+
+
+    @Test
+    @DisplayName("When Unlike Is Successful Expect Void")
+    void when_UnlikeIsSuccessful_Expect_Void() {
+        Like like=TestUtilsLike.buildLikeMock();
+        when(likePersistencePort.findByLikeUserAndTargetTypeAndTargetId(any(User.class), anyString(), anyString())).thenReturn(Mono.just(like));
+        when(likePersistencePort.delete(anyString())).thenReturn(Mono.empty());
+
+        Mono<Void> result = likeService.unlike(1L, "POST", "67831b0ec8dda45d9a6c3022");
+
+        StepVerifier.create(result)
+                .verifyComplete();
+        Mockito.verify(likePersistencePort, times(1)).findByLikeUserAndTargetTypeAndTargetId(any(User.class), anyString(), anyString());
+        Mockito.verify(likePersistencePort,times(1)).delete(anyString());
+    }
+
+    @Test
+    @DisplayName("Expect LikeNotFoundException When Like Not Found ")
+    void Expect_LikeNotFoundException_When_LikeNotFound() {
+        when(likePersistencePort.findByLikeUserAndTargetTypeAndTargetId(any(User.class), anyString(), anyString())).thenReturn(Mono.empty());
+
+        Mono<Void> result = likeService.unlike(1L, "POST", "67831b0ec8dda45d9a6c3022");
+
+        StepVerifier.create(result)
+                .expectError(LikeNotFoundException.class)
+                .verify();
+        Mockito.verify(likePersistencePort, times(1)).findByLikeUserAndTargetTypeAndTargetId(any(User.class), anyString(), anyString());
+        Mockito.verify(likePersistencePort,never()).delete(anyString());
     }
 }

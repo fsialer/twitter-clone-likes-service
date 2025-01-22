@@ -7,6 +7,7 @@ import com.fernando.ms.likes.app.infrastructure.adapter.input.rest.models.respon
 import com.fernando.ms.likes.app.infrastructure.adapter.input.rest.models.response.QuantityLikeResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -36,5 +37,11 @@ public class LikeRestAdapter {
                     String location = "/likes/".concat(like.getId());
                     return Mono.just(ResponseEntity.created(URI.create(location)).body(likeRestMapper.toLikeResponse(like)));
                 });
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/unlike/{userId}/user/{targetType}/target-type/{targetId}/target-id")
+    public Mono<Void> unlike(@PathVariable("userId") Long userId, @PathVariable("targetType") String targetType,@PathVariable("targetId") String targetId){
+        return likeInputPort.unlike(userId,targetType,targetId);
     }
 }

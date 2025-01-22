@@ -35,4 +35,14 @@ public class LikePersistenceAdapter implements LikePersistencePort {
     public Mono<Boolean> existsByUserAndTargetTypeTargetId(User user, String targetType, String targetId) {
         return likeReactiveMongoRepository.existsByLikeUserAndTargetTypeAndTargetId(likePersistenceMapper.toLikeUser(user),targetType,targetId);
     }
+
+    @Override
+    public Mono<Like> findByLikeUserAndTargetTypeAndTargetId(User user, String targetType, String targetId) {
+        return likeReactiveMongoRepository.findByLikeUserAndTargetTypeAndTargetId(likePersistenceMapper.toLikeUser(user),targetType,targetId).map(likePersistenceMapper::toLike);
+    }
+
+    @Override
+    public Mono<Void> delete(String id) {
+        return likeReactiveMongoRepository.deleteById(id);
+    }
 }

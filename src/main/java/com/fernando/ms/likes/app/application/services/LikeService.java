@@ -4,10 +4,12 @@ import com.fernando.ms.likes.app.application.ports.input.LikeInputPort;
 import com.fernando.ms.likes.app.application.ports.output.ExternalUserOutputPort;
 import com.fernando.ms.likes.app.application.ports.output.LikePersistencePort;
 import com.fernando.ms.likes.app.application.services.strategy.like.ITargetTypeStrategy;
+import com.fernando.ms.likes.app.domain.exception.LikeNotFoundException;
 import com.fernando.ms.likes.app.domain.exception.TargetTypeNotFoundException;
 import com.fernando.ms.likes.app.domain.exception.UniqueLikeException;
 import com.fernando.ms.likes.app.domain.exception.UserNotFoundException;
 import com.fernando.ms.likes.app.domain.models.Like;
+import com.fernando.ms.likes.app.domain.models.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -52,5 +54,15 @@ public class LikeService implements LikeInputPort {
                                                 });
                                     });
                         });
+    }
+
+    @Override
+    public Mono<Void> unlike(Long userId, String targetType, String targetId) {
+        User user= User.builder().id(userId).build();
+        return likePersistencePort.findByLikeUserAndTargetTypeAndTargetId(user,targetType,targetId)
+                .switchIfEmpty(Mono.error(LikeNotFoundException::new))
+                .flatMap(like->{
+                    return likePersistencePort.delete(like.getId());
+                });
     }
 }

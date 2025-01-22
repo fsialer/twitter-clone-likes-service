@@ -23,8 +23,7 @@ import java.util.Collections;
 import static com.fernando.ms.likes.app.infrastructure.adapter.input.rest.models.enums.ErrorType.FUNCTIONAL;
 import static com.fernando.ms.likes.app.infrastructure.adapter.input.rest.models.enums.ErrorType.SYSTEM;
 import static com.fernando.ms.likes.app.infrastructure.utils.ErrorCatalog.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
@@ -216,5 +215,23 @@ public class GlobalControllerAdviceTest {
         Mockito.verify(likeRestMapper, times(0)).toLikeResponse(any());
     }
 
+    @Test
+    @DisplayName("Expect LikeNotFoundException When Like Not Exists")
+    void Expect_LikeNotFoundException_When_LikeNotExists() {
+
+        when(likeInputPort.unlike(anyLong(),anyString(),anyString())).thenReturn(Mono.error(new LikeNotFoundException()));
+
+        webTestClient.delete()
+                .uri("/likes/unlike/{userId}/user/{targetType}/target-type/{targetId}/target-id", 1L, "POST", "67831b0ec8dda45d9a6c3022")
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody(ErrorResponse.class)
+                .value(response -> {
+                    assert response.getCode().equals(LIKE_NOT_FOUND.getCode());
+                    assert response.getType().equals(FUNCTIONAL);
+                    assert response.getMessage().equals(LIKE_NOT_FOUND.getMessage());
+                });
+        Mockito.verify(likeInputPort, times(1)).unlike(anyLong(),anyString(),anyString());
+    }
 
 }

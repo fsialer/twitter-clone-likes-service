@@ -9,4 +9,5 @@ import reactor.core.publisher.Mono;
 public interface LikeReactiveMongoRepository extends ReactiveMongoRepository<LikeDocument,String> {
     Flux<LikeDocument> findAllByTargetId(String targetId);
     Mono<Boolean> existsByLikeUserAndTargetTypeAndTargetId(LikeUser user, String targetType, String targetId);
+    Mono<LikeDocument> findByLikeUserAndTargetTypeAndTargetId(LikeUser user, String targetType, String targetId);
 }
