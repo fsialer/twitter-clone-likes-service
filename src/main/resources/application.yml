@@ -8,3 +8,9 @@ spring:
   data:
     mongodb:
       uri: ${DB_URL:mongodb://localhost:27017/tc_likes_db}
+users-service:
+  url: ${USER_URL:http://localhost:8080/users}
+posts-service:
+  url: ${POST_URL:http://localhost:8081/posts}
+comments-service:
+  url: ${COMMENT_URL:http://localhost:8082/comments}

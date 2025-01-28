@@ -15,7 +15,7 @@ public class PostWebClientImpl implements PostWebClient {
     public Mono<ExistsPostResponse> verify(String id) {
        return webClientPost
                 .get()
-                .uri("/posts/{id}/verify",id)
+                .uri("/{id}/verify",id)
                 .retrieve()
                 .bodyToMono(ExistsPostResponse.class);
     }

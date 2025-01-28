@@ -15,7 +15,7 @@ public class CommentWebClientImpl implements CommentWebClient {
     public Mono<ExistsCommentResponse> verify(String id) {
         return webClientComment
                 .get()
-                .uri("/comments/{id}/verify",id)
+                .uri("/{id}/verify",id)
                 .retrieve()
                 .bodyToMono(ExistsCommentResponse.class);
     }
