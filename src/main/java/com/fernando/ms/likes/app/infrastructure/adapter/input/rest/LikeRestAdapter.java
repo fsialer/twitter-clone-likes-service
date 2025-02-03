@@ -31,8 +31,8 @@ public class LikeRestAdapter {
     }
 
     @PostMapping
-    public Mono<ResponseEntity<LikeResponse>> save(@Valid @RequestBody CreateLikeRequest rq){
-        return likeInputPort.save(likeRestMapper.toLike(rq))
+    public Mono<ResponseEntity<LikeResponse>> save(@RequestHeader("X-User-Id") Long userId,@Valid @RequestBody CreateLikeRequest rq){
+        return likeInputPort.save(likeRestMapper.toLike(userId,rq))
                 .flatMap(like->{
                     String location = "/likes/".concat(like.getId());
                     return Mono.just(ResponseEntity.created(URI.create(location)).body(likeRestMapper.toLikeResponse(like)));

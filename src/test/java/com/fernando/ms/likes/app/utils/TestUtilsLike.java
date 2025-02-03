@@ -48,7 +48,6 @@ public class TestUtilsLike {
 
     public static CreateLikeRequest buildCreateLikeRequestMock(){
         return CreateLikeRequest.builder()
-                .userId(1L)
                 .targetId("67831b0ec8dda45d9a6c3022")
                 .targetType("POST")
                 .build();

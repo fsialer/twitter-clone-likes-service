@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
@@ -26,10 +26,10 @@ public class LikeRestAdapterTest {
     @Autowired
     private WebTestClient webTestClient;
 
-    @MockBean
+    @MockitoBean
     private LikeInputPort likeInputPort;
 
-    @MockBean
+    @MockitoBean
     private LikeRestMapper likeRestMapper;
 
     @Autowired
@@ -63,11 +63,12 @@ public class LikeRestAdapterTest {
         LikeResponse likeResponse = TestUtilsLike.buildLikeResponseMock();
 
         when(likeInputPort.save(any())).thenReturn(Mono.just(TestUtilsLike.buildLikeMock()));
-        when(likeRestMapper.toLike(any(CreateLikeRequest.class))).thenReturn(TestUtilsLike.buildLikeMock());
+        when(likeRestMapper.toLike(anyLong(),any(CreateLikeRequest.class))).thenReturn(TestUtilsLike.buildLikeMock());
         when(likeRestMapper.toLikeResponse(any())).thenReturn(likeResponse);
 
         webTestClient.post()
                 .uri("/likes")
+                .header("X-User-Id","1")
                 .bodyValue(createLikeRequest)
                 .exchange()
                 .expectStatus().isCreated()
@@ -75,7 +76,7 @@ public class LikeRestAdapterTest {
                 .jsonPath("$.id").isEqualTo(likeResponse.getId());
 
         Mockito.verify(likeInputPort, times(1)).save(any());
-        Mockito.verify(likeRestMapper, times(1)).toLike(any(CreateLikeRequest.class));
+        Mockito.verify(likeRestMapper, times(1)).toLike(anyLong(),any(CreateLikeRequest.class));
         Mockito.verify(likeRestMapper, times(1)).toLikeResponse(any());
     }
 

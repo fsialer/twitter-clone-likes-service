@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
@@ -30,10 +30,10 @@ import static org.mockito.Mockito.when;
 @WebFluxTest(controllers = {LikeRestAdapter.class})
 public class GlobalControllerAdviceTest {
 
-    @MockBean
+    @MockitoBean
     private LikeRestMapper likeRestMapper;
 
-    @MockBean
+    @MockitoBean
     private LikeInputPort likeInputPort;
 
     @Autowired
@@ -46,16 +46,16 @@ public class GlobalControllerAdviceTest {
     @DisplayName("Expect RuntimeException When Occurs Exception")
     void Expect_RuntimeException_When_OccursException() throws JsonProcessingException {
         CreateLikeRequest createLikeRequest= CreateLikeRequest.builder()
-                .userId(1L)
                 .targetType("POST")
                 .targetId("67831b0ec8dda45d9a6c3022")
                 .build();
-        when(likeRestMapper.toLike(any(CreateLikeRequest.class))).thenReturn(TestUtilsLike.buildLikeMock());
+        when(likeRestMapper.toLike(anyLong(),any(CreateLikeRequest.class))).thenReturn(TestUtilsLike.buildLikeMock());
         when(likeInputPort.save(any())).thenReturn(Mono.error(new RuntimeException("Unexpected error")));
 
         webTestClient.post()
                 .uri("/likes")
                 .contentType(MediaType.APPLICATION_JSON)
+                .header("X-User-Id","1")
                 .bodyValue(objectMapper.writeValueAsString(createLikeRequest))
                 .exchange()
                 .expectStatus().is5xxServerError()
@@ -67,7 +67,7 @@ public class GlobalControllerAdviceTest {
                     assert response.getDetails().equals(Collections.singletonList("Unexpected error"));
                 });
         Mockito.verify(likeInputPort, times(1)).save(any());
-        Mockito.verify(likeRestMapper, times(1)).toLike(any(CreateLikeRequest.class));
+        Mockito.verify(likeRestMapper, times(1)).toLike(anyLong(),any(CreateLikeRequest.class));
         Mockito.verify(likeRestMapper, times(0)).toLikeResponse(any());
     }
 
@@ -75,13 +75,13 @@ public class GlobalControllerAdviceTest {
     @DisplayName("Expect WebExchangeBindException When Like Information Is Invalid")
     void Expect_WebExchangeBindException_When_LikeInformationIsInvalid() throws JsonProcessingException {
         CreateLikeRequest createLikeRequest= CreateLikeRequest.builder()
-                .userId(1L)
                 .targetType("POST")
                 .targetId("")
                 .build();
 
         webTestClient.post()
                 .uri("/likes")
+                .header("X-User-Id","1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(objectMapper.writeValueAsString(createLikeRequest))
                 .exchange()
@@ -97,11 +97,12 @@ public class GlobalControllerAdviceTest {
     @DisplayName("Expect UniqueLikeException When User TargetType TargetId Are Equals")
     void Expect_UniqueLikeException_When_UserTargetTypeTargetIdAreEquals() throws JsonProcessingException {
         CreateLikeRequest createLikeRequest= TestUtilsLike.buildCreateLikeRequestMock();
-        when(likeRestMapper.toLike(any(CreateLikeRequest.class))).thenReturn(TestUtilsLike.buildLikeMock());
+        when(likeRestMapper.toLike(anyLong(),any(CreateLikeRequest.class))).thenReturn(TestUtilsLike.buildLikeMock());
         when(likeInputPort.save(any())).thenReturn(Mono.error(new UniqueLikeException("Like is unique by user")));
 
         webTestClient.post()
                 .uri("/likes")
+                .header("X-User-Id","1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(objectMapper.writeValueAsString(createLikeRequest))
                 .exchange()
@@ -114,7 +115,7 @@ public class GlobalControllerAdviceTest {
                     assert response.getDetails().equals(Collections.singletonList("Like is unique by user"));
                 });
         Mockito.verify(likeInputPort, times(1)).save(any());
-        Mockito.verify(likeRestMapper, times(1)).toLike(any(CreateLikeRequest.class));
+        Mockito.verify(likeRestMapper, times(1)).toLike(anyLong(),any(CreateLikeRequest.class));
         Mockito.verify(likeRestMapper, times(0)).toLikeResponse(any());
     }
 
@@ -122,11 +123,12 @@ public class GlobalControllerAdviceTest {
     @DisplayName("Expect UserNotFoundException When User Not Exists")
     void Expect_UserNotFoundException_When_UserUserNotExists() throws JsonProcessingException {
         CreateLikeRequest createLikeRequest= TestUtilsLike.buildCreateLikeRequestMock();
-        when(likeRestMapper.toLike(any(CreateLikeRequest.class))).thenReturn(TestUtilsLike.buildLikeMock());
+        when(likeRestMapper.toLike(anyLong(),any(CreateLikeRequest.class))).thenReturn(TestUtilsLike.buildLikeMock());
         when(likeInputPort.save(any())).thenReturn(Mono.error(new UserNotFoundException()));
 
         webTestClient.post()
                 .uri("/likes")
+                .header("X-User-Id","1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(objectMapper.writeValueAsString(createLikeRequest))
                 .exchange()
@@ -138,7 +140,7 @@ public class GlobalControllerAdviceTest {
                     assert response.getMessage().equals(USER_NOT_FOUND.getMessage());
                 });
         Mockito.verify(likeInputPort, times(1)).save(any());
-        Mockito.verify(likeRestMapper, times(1)).toLike(any(CreateLikeRequest.class));
+        Mockito.verify(likeRestMapper, times(1)).toLike(anyLong(),any(CreateLikeRequest.class));
         Mockito.verify(likeRestMapper, times(0)).toLikeResponse(any());
     }
 
@@ -146,11 +148,12 @@ public class GlobalControllerAdviceTest {
     @DisplayName("Expect PostNotFoundException When Post Not Exists")
     void Expect_PostNotFoundException_When_PostNotExists() throws JsonProcessingException {
         CreateLikeRequest createLikeRequest= TestUtilsLike.buildCreateLikeRequestMock();
-        when(likeRestMapper.toLike(any(CreateLikeRequest.class))).thenReturn(TestUtilsLike.buildLikeMock());
+        when(likeRestMapper.toLike(anyLong(),any(CreateLikeRequest.class))).thenReturn(TestUtilsLike.buildLikeMock());
         when(likeInputPort.save(any())).thenReturn(Mono.error(new PostNotFoundException()));
 
         webTestClient.post()
                 .uri("/likes")
+                .header("X-User-Id","1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(objectMapper.writeValueAsString(createLikeRequest))
                 .exchange()
@@ -162,7 +165,7 @@ public class GlobalControllerAdviceTest {
                     assert response.getMessage().equals(POST_NOT_FOUND.getMessage());
                 });
         Mockito.verify(likeInputPort, times(1)).save(any());
-        Mockito.verify(likeRestMapper, times(1)).toLike(any(CreateLikeRequest.class));
+        Mockito.verify(likeRestMapper, times(1)).toLike(anyLong(),any(CreateLikeRequest.class));
         Mockito.verify(likeRestMapper, times(0)).toLikeResponse(any());
     }
 
@@ -170,11 +173,12 @@ public class GlobalControllerAdviceTest {
     @DisplayName("Expect CommentNotFoundException When Comment Not Exists")
     void Expect_CommentNotFoundException_When_CommentNotExists() throws JsonProcessingException {
         CreateLikeRequest createLikeRequest= TestUtilsLike.buildCreateLikeRequestMock();
-        when(likeRestMapper.toLike(any(CreateLikeRequest.class))).thenReturn(TestUtilsLike.buildLikeMock());
+        when(likeRestMapper.toLike(anyLong(),any(CreateLikeRequest.class))).thenReturn(TestUtilsLike.buildLikeMock());
         when(likeInputPort.save(any())).thenReturn(Mono.error(new CommentNotFoundException()));
 
         webTestClient.post()
                 .uri("/likes")
+                .header("X-User-Id","1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(objectMapper.writeValueAsString(createLikeRequest))
                 .exchange()
@@ -186,7 +190,7 @@ public class GlobalControllerAdviceTest {
                     assert response.getMessage().equals(COMMENT_NOT_FOUND.getMessage());
                 });
         Mockito.verify(likeInputPort, times(1)).save(any());
-        Mockito.verify(likeRestMapper, times(1)).toLike(any(CreateLikeRequest.class));
+        Mockito.verify(likeRestMapper, times(1)).toLike(anyLong(),any(CreateLikeRequest.class));
         Mockito.verify(likeRestMapper, times(0)).toLikeResponse(any());
     }
 
@@ -194,11 +198,12 @@ public class GlobalControllerAdviceTest {
     @DisplayName("Expect TargetTypeNotFoundException When Target Type Not Exists")
     void Expect_TargetTypeNotFoundException_When_TargetTypeNoExists() throws JsonProcessingException {
         CreateLikeRequest createLikeRequest= TestUtilsLike.buildCreateLikeRequestMock();
-        when(likeRestMapper.toLike(any(CreateLikeRequest.class))).thenReturn(TestUtilsLike.buildLikeMock());
+        when(likeRestMapper.toLike(anyLong(),any(CreateLikeRequest.class))).thenReturn(TestUtilsLike.buildLikeMock());
         when(likeInputPort.save(any())).thenReturn(Mono.error(new TargetTypeNotFoundException("Target type ".concat(createLikeRequest.getTargetType()).concat(" no exists."))));
 
         webTestClient.post()
                 .uri("/likes")
+                .header("X-User-Id","1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(objectMapper.writeValueAsString(createLikeRequest))
                 .exchange()
@@ -211,7 +216,7 @@ public class GlobalControllerAdviceTest {
                     assert response.getDetails().equals(Collections.singletonList("Target type ".concat(createLikeRequest.getTargetType()).concat(" no exists.")));
                 });
         Mockito.verify(likeInputPort, times(1)).save(any());
-        Mockito.verify(likeRestMapper, times(1)).toLike(any(CreateLikeRequest.class));
+        Mockito.verify(likeRestMapper, times(1)).toLike(anyLong(),any(CreateLikeRequest.class));
         Mockito.verify(likeRestMapper, times(0)).toLikeResponse(any());
     }
 

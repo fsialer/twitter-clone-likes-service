@@ -14,6 +14,4 @@ public class CreateLikeRequest {
     private String targetId;
     @NotBlank(message = "Field targetType cannot be null or blank")
     private String targetType;
-    @NotNull(message = "Field userId cannot be null")
-    private Long userId;
 }

@@ -18,11 +18,11 @@ public interface LikeRestMapper {
         return  quantity;
     }
 
-    @Mapping(target = "user", expression = "java(mapUser(rq))")
-    Like toLike(CreateLikeRequest rq);
+    @Mapping(target = "user", expression = "java(mapUser(userId))")
+    Like toLike(Long userId,CreateLikeRequest rq);
 
-    default User mapUser(CreateLikeRequest rq){
-        return User.builder().id(rq.getUserId()).build();
+    default User mapUser(Long userId){
+        return User.builder().id(userId).build();
     }
 
     LikeResponse toLikeResponse(Like rq);
