@@ -40,8 +40,8 @@ public class LikeRestAdapter {
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping("/unlike/{userId}/user/{targetType}/target-type/{targetId}/target-id")
-    public Mono<Void> unlike(@PathVariable("userId") Long userId, @PathVariable("targetType") String targetType,@PathVariable("targetId") String targetId){
+    @DeleteMapping("/unlike/{targetType}/target-type/{targetId}/target-id")
+    public Mono<Void> unlike(@RequestHeader("X-User-Id") Long userId, @PathVariable("targetType") String targetType,@PathVariable("targetId") String targetId){
         return likeInputPort.unlike(userId,targetType,targetId);
     }
 }
