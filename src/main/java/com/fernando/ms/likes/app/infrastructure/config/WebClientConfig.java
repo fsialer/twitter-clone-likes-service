@@ -10,13 +10,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RequiredArgsConstructor
 public class WebClientConfig {
     @Value("${users-service.url}")
-    private final String apiUser;
+    private String apiUser;
 
     @Value("${posts-service.url}")
-    private final String apiPost;
+    private String apiPost;
 
     @Value("${comments-service.url}")
-    private final String apiComment;
+    private String apiComment;
 
 
     @Bean
