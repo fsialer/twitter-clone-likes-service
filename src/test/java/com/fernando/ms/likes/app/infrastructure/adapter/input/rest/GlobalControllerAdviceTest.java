@@ -53,7 +53,7 @@ public class GlobalControllerAdviceTest {
         when(likeInputPort.save(any())).thenReturn(Mono.error(new RuntimeException("Unexpected error")));
 
         webTestClient.post()
-                .uri("/likes")
+                .uri("/v1/likes")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("X-User-Id","1")
                 .bodyValue(objectMapper.writeValueAsString(createLikeRequest))
@@ -80,7 +80,7 @@ public class GlobalControllerAdviceTest {
                 .build();
 
         webTestClient.post()
-                .uri("/likes")
+                .uri("/v1/likes")
                 .header("X-User-Id","1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(objectMapper.writeValueAsString(createLikeRequest))
@@ -101,7 +101,7 @@ public class GlobalControllerAdviceTest {
         when(likeInputPort.save(any())).thenReturn(Mono.error(new UniqueLikeException("Like is unique by user")));
 
         webTestClient.post()
-                .uri("/likes")
+                .uri("/v1/likes")
                 .header("X-User-Id","1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(objectMapper.writeValueAsString(createLikeRequest))
@@ -127,7 +127,7 @@ public class GlobalControllerAdviceTest {
         when(likeInputPort.save(any())).thenReturn(Mono.error(new UserNotFoundException()));
 
         webTestClient.post()
-                .uri("/likes")
+                .uri("/v1/likes")
                 .header("X-User-Id","1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(objectMapper.writeValueAsString(createLikeRequest))
@@ -152,7 +152,7 @@ public class GlobalControllerAdviceTest {
         when(likeInputPort.save(any())).thenReturn(Mono.error(new PostNotFoundException()));
 
         webTestClient.post()
-                .uri("/likes")
+                .uri("/v1/likes")
                 .header("X-User-Id","1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(objectMapper.writeValueAsString(createLikeRequest))
@@ -177,7 +177,7 @@ public class GlobalControllerAdviceTest {
         when(likeInputPort.save(any())).thenReturn(Mono.error(new CommentNotFoundException()));
 
         webTestClient.post()
-                .uri("/likes")
+                .uri("/v1/likes")
                 .header("X-User-Id","1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(objectMapper.writeValueAsString(createLikeRequest))
@@ -202,7 +202,7 @@ public class GlobalControllerAdviceTest {
         when(likeInputPort.save(any())).thenReturn(Mono.error(new TargetTypeNotFoundException("Target type ".concat(createLikeRequest.getTargetType()).concat(" no exists."))));
 
         webTestClient.post()
-                .uri("/likes")
+                .uri("/v1/likes")
                 .header("X-User-Id","1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(objectMapper.writeValueAsString(createLikeRequest))
@@ -227,7 +227,7 @@ public class GlobalControllerAdviceTest {
         when(likeInputPort.unlike(anyLong(),anyString(),anyString())).thenReturn(Mono.error(new LikeNotFoundException()));
 
         webTestClient.delete()
-                .uri("/likes/unlike/{userId}/user/{targetType}/target-type/{targetId}/target-id", 1L, "POST", "67831b0ec8dda45d9a6c3022")
+                .uri("/v1/likes/unlike/{targetType}/target-type/{targetId}/target-id",  "POST", "67831b0ec8dda45d9a6c3022")
                 .exchange()
                 .expectStatus().isNotFound()
                 .expectBody(ErrorResponse.class)

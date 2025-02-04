@@ -17,7 +17,7 @@ import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/likes")
+@RequestMapping("/v1/likes")
 public class LikeRestAdapter {
     private final LikeInputPort likeInputPort;
     private final LikeRestMapper likeRestMapper;

@@ -43,7 +43,7 @@ public class LikeRestAdapterTest {
         when(likeRestMapper.toQuantityLikeResponse(anyLong())).thenReturn(quantityLikeResponse);
 
         webTestClient.get()
-                .uri("/likes/quantity/{targetId}}/target/{targetType}/type","67831b0ec8dda45d9a6c3022","POST")
+                .uri("/v1/likes/quantity/{targetId}}/target/{targetType}/type","67831b0ec8dda45d9a6c3022","POST")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -67,7 +67,7 @@ public class LikeRestAdapterTest {
         when(likeRestMapper.toLikeResponse(any())).thenReturn(likeResponse);
 
         webTestClient.post()
-                .uri("/likes")
+                .uri("/v1/likes")
                 .header("X-User-Id","1")
                 .bodyValue(createLikeRequest)
                 .exchange()
@@ -86,7 +86,7 @@ public class LikeRestAdapterTest {
         when(likeInputPort.unlike(anyLong(), anyString(), anyString())).thenReturn(Mono.empty());
 
         webTestClient.delete()
-                .uri("/likes/unlike/{targetType}/target-type/{targetId}/target-id",  "POST", "67831b0ec8dda45d9a6c3022")
+                .uri("/v1/likes/unlike/{targetType}/target-type/{targetId}/target-id",  "POST", "67831b0ec8dda45d9a6c3022")
                 .header("X-User-Id","1")
                 .exchange()
                 .expectStatus().isNoContent();
