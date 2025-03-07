@@ -3,6 +3,8 @@ package com.fernando.ms.likes.app.application.services;
 import com.fernando.ms.likes.app.application.ports.input.LikeInputPort;
 import com.fernando.ms.likes.app.application.ports.output.ExternalUserOutputPort;
 import com.fernando.ms.likes.app.application.ports.output.LikePersistencePort;
+import com.fernando.ms.likes.app.application.services.proxy.IProcess;
+import com.fernando.ms.likes.app.application.services.proxy.ProcessFactory;
 import com.fernando.ms.likes.app.application.services.strategy.like.ITargetTypeStrategy;
 import com.fernando.ms.likes.app.domain.exception.LikeNotFoundException;
 import com.fernando.ms.likes.app.domain.exception.TargetTypeNotFoundException;
@@ -34,26 +36,9 @@ public class LikeService implements LikeInputPort {
 
     @Override
     public Mono<Like> save(Like like) {
-        return likePersistencePort.existsByUserAndTargetTypeTargetId(like.getUser(),like.getTargetType(),like.getTargetId())
-                        .flatMap(uniqueLike->{
-                            if(Boolean.TRUE.equals(uniqueLike)){
-                                return Mono.error(new UniqueLikeException("Like is unique by user."));
-                            }
-                           return externalUserOutputPort.verify(like.getUser().getId())
-                                    .flatMap(existsUser->{
-                                        if(Boolean.FALSE.equals(existsUser)){
-                                            return Mono.error(UserNotFoundException::new);
-                                        }
-                                        ITargetTypeStrategy targetTypeStrategy= targetTypeStrategyList.stream()
-                                                .filter(strategy->strategy.isApplicable(like.getTargetType()))
-                                                .findFirst()
-                                                .orElseThrow(()->new TargetTypeNotFoundException("Target type ".concat(like.getTargetType()).concat(" no exists.")));
-                                        return targetTypeStrategy.doOperation(like)
-                                                .flatMap(likeSave->{
-                                                    return likePersistencePort.save(like);
-                                                });
-                                    });
-                        });
+        IProcess process= ProcessFactory.validateSaveLike(likePersistencePort,externalUserOutputPort,targetTypeStrategyList);
+        return process.doProcess(like).flatMap(likePersistencePort::save);
+
     }
 
     @Override
@@ -61,8 +46,6 @@ public class LikeService implements LikeInputPort {
         User user= User.builder().id(userId).build();
         return likePersistencePort.findByLikeUserAndTargetTypeAndTargetId(user,targetType,targetId)
                 .switchIfEmpty(Mono.error(LikeNotFoundException::new))
-                .flatMap(like->{
-                    return likePersistencePort.delete(like.getId());
-                });
+                .flatMap(like-> likePersistencePort.delete(like.getId()));
     }
 }
